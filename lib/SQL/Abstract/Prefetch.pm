@@ -6,6 +6,19 @@ our $VERSION = '0.001';
 
 SQL::Abstract::Prefetch - implement "prefetch" for DBI RDBMS
 
+=begin markdown
+
+# PROJECT STATUS
+
+| OS      |  Build status |
+|:-------:|--------------:|
+| Linux   | [![Build Status](https://travis-ci.com/mohawk2/SQL-Abstract-Prefetch.svg?branch=master)](https://travis-ci.com/mohawk2/SQL-Abstract-Prefetch) |
+
+[![CPAN version](https://badge.fury.io/pl/SQL-Abstract-Prefetch.svg)](https://metacpan.org/pod/SQL::Abstract::Prefetch) [![Coverage Status](https://coveralls.io/repos/github/mohawk2/SQL-Abstract-Prefetch/badge.svg?branch=master)](https://coveralls.io/github/mohawk2/SQL-Abstract-Prefetch?branch=master)
+
+=end markdown
+
+
 =head1 SYNOPSIS
 
   my $queryspec = {
