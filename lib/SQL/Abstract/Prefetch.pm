@@ -417,7 +417,20 @@ sub extract_from_query {
       my ( $fstart, $fend ) = map $spec->{offset} + $_, @{ $spec->{fields} };
       my %hash;
       @hash{ @{ $spec->{fieldnames} } } = @$array[ $fstart..$fend ];
-      _init_obj( \%hash, \@index2entrypoint, $spec );
+      my $entrypoint = $index2entrypoint[ $spec->{specsindex} ];
+      if ( $spec->{type} == 0 ) {
+        # single, scalar-ref
+        $$entrypoint = \%hash;
+      } else {
+        # multi, array-ref
+        push @$entrypoint, \%hash;
+      }
+      for ( @{ $spec->{subspecs} } ) {
+        my ( $key, $subspec ) = @$_;
+        $hash{ $key } = ( $subspec->{type} == 0 ) ? undef : [];
+        $index2entrypoint[ $subspec->{specsindex} ] = ( $subspec->{type} == 0 )
+          ? \$hash{ $key } : $hash{ $key };
+      }
 #use Test::More; diag "efr ", explain [ $array, $fstart, $fend, \%hash ];
     }
   }
@@ -428,24 +441,6 @@ sub _invalidate_ids {
   my ( $index2ids, $spec ) = @_;
   $index2ids->[ $spec->{specsindex} ] = undef;
   _invalidate_ids( $index2ids, $_->[1] ) for @{ $spec->{subspecs} };
-}
-
-sub _init_obj {
-  my ( $obj, $index2entrypoint, $spec ) = @_;
-  my $entrypoint = $index2entrypoint->[ $spec->{specsindex} ];
-  if ( $spec->{type} == 0 ) {
-    # single, scalar-ref
-    $$entrypoint = $obj;
-  } else {
-    # multi, array-ref
-    push @$entrypoint, $obj;
-  }
-  for ( @{ $spec->{subspecs} } ) {
-    my ( $key, $subspec ) = @$_;
-    $obj->{ $key } = ( $subspec->{type} == 0 ) ? undef : [];
-    $index2entrypoint->[ $subspec->{specsindex} ] = ( $subspec->{type} == 0 )
-      ? \$obj->{ $key } : $obj->{ $key };
-  }
 }
 
 sub _build_dbspec {
