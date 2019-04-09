@@ -425,12 +425,11 @@ sub extract_from_query {
         # multi, array-ref
         push @$entrypoint, \%hash;
       }
-      for ( @{ $spec->{subspecs} } ) {
-        my ( $key, $subspec ) = @$_;
-        $hash{ $key } = ( $subspec->{type} == 0 ) ? undef : [];
-        $index2entrypoint[ $subspec->{specsindex} ] = ( $subspec->{type} == 0 )
-          ? \$hash{ $key } : $hash{ $key };
-      }
+      $hash{ $_->[0] } = ( $_->[1]{type} == 0 ) ? undef : []
+        for @{ $spec->{subspecs} };
+      $index2entrypoint[ $_->[1]{specsindex} ] =
+        ( $_->[1]{type} == 0 ) ? \$hash{ $_->[0] } : $hash{ $_->[0] }
+        for @{ $spec->{subspecs} };
 #use Test::More; diag "efr ", explain [ $array, $fstart, $fend, \%hash ];
     }
   }
