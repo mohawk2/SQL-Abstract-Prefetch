@@ -407,7 +407,11 @@ sub extract_from_query {
       my ( $kstart, $kend ) = map $spec->{offset} + $_, @{ $spec->{keys} };
       my $this_ids = [ @$array[ $kstart..$kend ] ];
       next SPEC if !grep defined, @$this_ids; # null PK = no result
-      next SPEC if !_new_obj( $index2ids[ $index ], $this_ids );
+      # not new object if both array-ref true and both lists identical
+      next SPEC if ($index2ids[ $index ] and $this_ids)
+        # this might be quicker if could rely on numerical, therefore !=
+        and !grep $index2ids[ $index ][ $_ ] ne $this_ids->[ $_ ],
+          0..$#{ $index2ids[ $index ] };
       _invalidate_ids( \@index2ids, $spec );
       $index2ids[ $index ] = $this_ids;
       my ( $fstart, $fend ) = map $spec->{offset} + $_, @{ $spec->{fields} };
@@ -442,17 +446,6 @@ sub _init_obj {
     $index2entrypoint->[ $subspec->{specsindex} ] = ( $subspec->{type} == 0 )
       ? \$obj->{ $key } : $obj->{ $key };
   }
-}
-
-# have we found a new object?
-# true if either array-ref false
-# false if all list members == each other
-sub _new_obj {
-  my ( $a1, $a2 ) = @_;
-  return 1 if !$a1 or !$a2;
-  # this might be quicker if could rely on numerical, therefore !=
-  $a1->[ $_ ] ne $a2->[ $_ ] and return 1 for 0..$#$a1;
-  0;
 }
 
 sub _build_dbspec {
